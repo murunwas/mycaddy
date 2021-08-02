@@ -1,27 +1,30 @@
-name: Docker Image CI
+name: BUILD DOCKER
 
-on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+on:  
+   push:
+    branches:
+      - master
 
 jobs:
-
-  build:
-
+  publish-image:
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v2
-    - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag ghcr.io/${{ secrets.USERNAME }}/mycaddy:latest
     - name: Log in to Red Hat Registry
       uses: redhat-actions/podman-login@v1
       with:
         registry: ghcr.io
         username: ${{ secrets.USERNAME }}
         password: ${{ secrets.MYTOKEN }}
-        
-    - name : Pushing image to registy
+    - run: sudo podman run --rm --privileged multiarch/qemu-user-static --reset -p yes
+    - name: Buildah Action
+      uses: redhat-actions/buildah-build@v2
+      with:
+        image: ghcr.io/${{ secrets.USERNAME }}/mycaddy
+        tags: latest
+        dockerfiles: |
+          ./Dockerfile
+        build-args: |
+          some_arg=some_value
     - run: podman push ghcr.io/${{ secrets.USERNAME }}/mycaddy:latest
