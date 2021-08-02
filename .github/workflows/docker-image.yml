@@ -15,12 +15,13 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag ghcr.io/${{ secrets.USERNAME }}/mycaddy:$(date +%s)
+      run: docker build . --file Dockerfile --tag ghcr.io/${{ secrets.USERNAME }}/mycaddy:latest
     - name: Log in to Red Hat Registry
       uses: redhat-actions/podman-login@v1
       with:
         registry: ghcr.io
         username: ${{ secrets.USERNAME }}
         password: ${{ secrets.MYTOKEN }}
+        
     - name : Pushing image to registy
-    - run: podman push ghcr.io/murunwas/cengy-telegram-bot:latest
+    - run: podman push ghcr.io/${{ secrets.USERNAME }}/mycaddy:latest
